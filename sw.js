@@ -1,0 +1,6 @@
+const C='kairos-55990932',F=["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "./fonts/f1.woff2", "./fonts/f2.woff2", "./fonts/f3.woff2", "./fonts/f4.woff2", "./fonts/f5.woff2", "./fonts/f6.woff2"];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(u=>new Request(u,{cache:'reload'})))));self.skipWaiting();});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;
+ if(r.mode==='navigate'){e.respondWith(Promise.race([fetch(r,{cache:'no-store'}).then(n=>{if(n.ok&&(n.headers.get('content-type')||'').includes('text/html')){const cp=n.clone();caches.open(C).then(c=>c.put('./index.html',cp));return n;}return caches.match('./index.html').then(c=>c||n);}),new Promise((_,j)=>setTimeout(j,1500))]).catch(()=>caches.match('./index.html')));return;}
+ e.respondWith(caches.match(r,{ignoreSearch:true}).then(h=>h||fetch(r).then(n=>{if(n.ok&&new URL(r.url).origin===location.origin){const cp=n.clone();caches.open(C).then(c=>c.put(r,cp));}return n;})));});
